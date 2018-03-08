@@ -126,7 +126,7 @@ export default class App extends React.Component {
            <View style={styles.inspirational}>
             <FadeInView>
               <Text style={styles.inspirationalText}>Done!</Text>
-              <Text style={styles.inspirationalText}>You earned {focusPoints} Focus Points.</Text>
+              <Text style={[styles.inspirationalText, styles.inspirationalCaption]}>You earned {focusPoints} Focus Points.</Text>
             </FadeInView>
             </View>
           )}
@@ -217,6 +217,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Verdana',
     textAlign: 'center',
+  },
+  
+  inspirationalCaption: {
+    fontSize: 16,
   },
 
 });
