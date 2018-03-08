@@ -1,0 +1,245 @@
+import React from 'react';
+import { StyleSheet, Text, Button, View, Animated } from 'react-native';
+import TimerCountdown from 'react-native-timer-countdown';
+import ModalDropdown from 'react-native-modal-dropdown';
+
+/*
+  import different tools from the react native library
+*/
+
+/*
+  declare dropdown and timer correspondence arrays
+*/
+const DEMO_OPTIONS_1 = ['1 minute', '5 minutes', '15 minutes', '30 minutes', '45 minutes', '1 hour'];
+const corresponding_nums = [60000, 300000, 900000, 1800000, 2700000, 3600000];
+const index = 0;
+
+/*
+  class to control animations
+*/
+class FadeInView extends React.Component {
+  state = {
+    fadeAnim: new Animated.Value(0),  // Initial value for opacity: 0
+  }
+
+  componentDidMount() {
+    Animated.timing(                  // Animate over time
+      this.state.fadeAnim,            // The animated value to drive
+      {
+        toValue: 1,                   // Animate to opacity: 1 (opaque)
+        duration: 3000,              // Make it take a while
+      }
+    ).start();                        // Starts the animation
+  }
+
+  render() {
+    let { fadeAnim } = this.state;
+
+    return (
+      <Animated.View                 // Special animatable View
+        style={{
+          ...this.props.style,
+          opacity: fadeAnim,         // Bind opacity to animated value
+        }}
+      >
+        {this.props.children}
+      </Animated.View>
+    );
+  }
+} /* end animation class */
+
+
+/* 
+  begin primary class 
+*/
+export default class App extends React.Component {
+
+  /*
+    set state
+  */
+  constructor() {
+    super();
+    this.state = {
+      DEMO_OPTIONS_1: 0,
+      corresponding_nums: 0,
+      status: false,
+    }
+  }
+  
+  /*
+    function to hide or show content on certain conditions
+  */
+  renderIf(condition, content) {
+    if (condition) {
+        return content;
+    } else {
+        return null;
+    }
+  }
+
+  /*
+    takes user dropdown selection and creates global timer value
+  */
+  selected(idx, value) {
+    index = idx;
+    console.log(index);
+  }
+
+  /*
+    set boolean value to true on user time selection
+  */
+  toggleStatus(){
+    this.setState({
+      status:true,
+    });
+    console.log('pressed');
+  }
+
+  /*
+    display function
+  */
+  render() {
+    let { active } = this.state;
+    return (
+      <View style = {styles.body}>
+      <View style = {styles.container}>
+      
+        /*
+          header and subheader
+        */
+        <Text style={[styles.header, styles.center]}>Transe</Text>
+        <Text style={[styles.center, styles.subheader]}>Focus for the Future</Text>
+        
+        /*
+          begin dropdown list
+        */
+        <View style = {styles.button}>
+        <ModalDropdown 
+            defaultValue = 'Set Time'  
+            textStyle={styles.menuText}
+            dropdownTextStyle = {[styles.menuText, styles.dropDownText]}
+            dropdownStyle = {styles.menuFace}
+            options={DEMO_OPTIONS_1}
+            onSelect={(idx, value) => {this.selected(idx, value); this.toggleStatus(); this.setState({ active: true })}}
+            />
+          </View> /* end button view */
+          
+          /*
+            begin timer only IF dropdown list has been selected
+          */
+          {this.renderIf(this.state.status,
+          <View> /*begin wrapper view*/
+            <View style = {styles.timer}>
+            <Text style = {styles.timerText}>
+              <TimerCountdown
+                  initialSecondsRemaining = {corresponding_nums[index]}
+                  /*onTick={() => {}}*/
+                  onTimeElapsed={() => alert('complete')}
+                  allowFontScaling={true}
+                  style={{ fontSize: 20 }}
+              /> 
+          </Text> /* end timer text */
+          </View>/*ends timer view*/
+          
+          /* begin animated text */
+          <View style={styles.inspirational}>
+            <FadeInView>
+              <Text style={styles.inspirationalText}>You can do it!</Text>
+            </FadeInView>
+          </View> /* end animated text */
+        </View> /*end wrapper view*/
+          )} /* end renderIf */
+
+      </View> /*ends container*/
+      </View> /*end body*/
+    );
+  }
+}
+
+/*
+  stylesheet
+*/
+const styles = StyleSheet.create({
+  
+  body: {
+    backgroundColor: '#DCDCDC',
+    paddingBottom: 500,
+  },
+  
+  container: {
+    marginTop: 100,
+  },
+  
+  center: {
+    textAlign: 'center',
+  },
+  
+  header: {
+    color: '#4B0082',
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'Verdana',
+  },
+  
+  subheader: {
+    fontStyle: 'italic',
+    fontSize: 20,
+  },
+  
+  button: {
+    marginTop: 75,
+    marginLeft: 30,
+    marginRight: 30,
+    paddingTop: 15,
+    paddingBottom: 15,
+    backgroundColor: '#D8BFD8',
+  },
+  
+  menuText: {
+    fontSize: 20,
+    color: '#841584',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
+  dropDownText: {
+    color: '#4B0082',
+    backgroundColor: '#DCDCDC',
+  },
+  
+  menuFace: {
+    marginTop: 15,
+    width: 260,
+    backgroundColor: '#DCDCDC',
+  },
+  
+  timer: {
+      backgroundColor: '#9370DB',
+      paddingTop: 15,
+      paddingBottom: 15,
+      marginLeft: 30,
+      marginRight: 30,
+      fontSize: 30,
+      color: '#FFF',
+  },
+  
+  timerText: {
+    fontSize: 30,
+    color: '#FFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
+  inspirational: {
+    marginTop: 50,
+  },
+  
+  inspirationalText: {
+    color: '#4B0082',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'Verdana',
+    textAlign: 'center',
+  },
+
+});
