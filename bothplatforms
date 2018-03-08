@@ -1,0 +1,222 @@
+import React from 'react';
+import { StyleSheet, Text, View, Animated } from 'react-native';
+import TimerCountdown from 'react-native-timer-countdown';
+import ModalDropdown from 'react-native-modal-dropdown';
+
+const DEMO_OPTIONS_1 = ['1 minute', '5 minutes', '15 minutes', '30 minutes', '45 minutes', '1 hour'];
+const corresponding_nums = [60000, 300000, 900000, 1800000, 2700000, 3600000];
+const index = 0;
+const focusPoints = 0;
+
+
+/*
+  This version should work on both Android and iOS devices.
+*/
+
+class FadeInView extends React.Component {
+  state = {
+    fadeAnim: new Animated.Value(0),  // Initial value for opacity: 0
+  }
+
+  componentDidMount() {
+    Animated.timing(                  // Animate over time
+      this.state.fadeAnim,            // The animated value to drive
+      {
+        toValue: 1,                   // Animate to opacity: 1 (opaque)
+        duration: 3000,              // Make it take a while
+      }
+    ).start();                        // Starts the animation
+  }
+
+  render() {
+    let { fadeAnim } = this.state;
+    return (
+      <Animated.View                
+        style={{
+          ...this.props.style,
+          opacity: fadeAnim,       
+        }}
+      >
+        {this.props.children}
+      </Animated.View>
+    );
+  }
+} 
+
+export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      DEMO_OPTIONS_1: 0,
+      corresponding_nums: 0,
+      status: false,
+    }
+  }
+  
+  renderIf(condition, content) {
+    if (condition) {
+        return content;
+    } else {
+        return null;
+    }
+  }
+
+  selected(idx, value) {
+    index = idx;
+    console.log(index);
+  }
+
+  toggleStatus(){
+    this.setState({
+      status:true,
+    });
+    console.log('pressed');
+  }
+  
+  toggleFinished(){
+    this.setState({
+      finishedStatus:true,
+      status: false,
+    });
+    console.log('finished');
+  }
+  
+  updatePoints() {
+    focusPoints = corresponding_nums[index] / 60000;
+  }
+
+  render() {
+    return (
+      <View style = {styles.body}>
+      <View style = {styles.container}>
+        <Text style={[styles.header, styles.center]}>Transe</Text>
+        <Text style={[styles.center, styles.subheader]}>Focus for the Future</Text>
+        <View style = {styles.button}>
+        <ModalDropdown 
+            defaultValue = 'Set Time'  
+            textStyle={styles.menuText}
+            dropdownTextStyle = {[styles.menuText, styles.dropDownText]}
+            dropdownStyle = {styles.menuFace}
+            options={DEMO_OPTIONS_1}
+            onSelect={(idx, value) => {this.selected(idx, value); this.toggleStatus()}}
+            />
+          </View>
+          {this.renderIf(this.state.status,
+          <View>
+            <View style = {styles.timer}>
+            <Text style = {styles.timerText}>
+              <TimerCountdown
+                  initialSecondsRemaining = {corresponding_nums[index]}
+                  onTimeElapsed={() => {this.updatePoints(); this.toggleFinished()}}
+                  allowFontScaling={true}
+                  style={{ fontSize: 20 }}
+              /> 
+          </Text>
+          </View>
+          {this.renderIf(!this.state.finishedStatus,
+          <View style={styles.inspirational}>
+            <FadeInView>
+              <Text style={styles.inspirationalText}>You can do it!</Text>
+            </FadeInView>
+          </View>
+          )}
+        </View> 
+        )}
+        {this.renderIf(this.state.finishedStatus && !this.state.status,
+           <View style={styles.inspirational}>
+            <FadeInView>
+              <Text style={styles.inspirationalText}>Done!</Text>
+              <Text style={styles.inspirationalText}>You earned {focusPoints} Focus Points.</Text>
+            </FadeInView>
+            </View>
+          )}
+      </View>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  
+  body: {
+    backgroundColor: '#DCDCDC',
+    paddingBottom: 500,
+  },
+  
+  container: {
+    marginTop: 100,
+  },
+  
+  center: {
+    textAlign: 'center',
+  },
+  
+  header: {
+    color: '#4B0082',
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'Verdana',
+  },
+  
+  subheader: {
+    fontStyle: 'italic',
+    fontSize: 20,
+  },
+  
+  button: {
+    marginTop: 75,
+    marginLeft: 30,
+    marginRight: 30,
+    paddingTop: 15,
+    paddingBottom: 15,
+    backgroundColor: '#D8BFD8',
+  },
+  
+  menuText: {
+    fontSize: 20,
+    color: '#841584',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
+  dropDownText: {
+    color: '#4B0082',
+    backgroundColor: '#DCDCDC',
+  },
+  
+  menuFace: {
+    marginTop: 15,
+    width: 260,
+    backgroundColor: '#DCDCDC',
+  },
+  
+  timer: {
+      backgroundColor: '#9370DB',
+      paddingTop: 15,
+      paddingBottom: 15,
+      marginLeft: 30,
+      marginRight: 30,
+      fontSize: 30,
+      color: '#FFF',
+  },
+  
+  timerText: {
+    fontSize: 30,
+    color: '#FFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
+  inspirational: {
+    marginTop: 50,
+  },
+  
+  inspirationalText: {
+    color: '#4B0082',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'Verdana',
+    textAlign: 'center',
+  },
+
+});
